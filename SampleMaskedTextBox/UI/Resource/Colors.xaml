@@ -1,0 +1,22 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="Main.Blue">#086CF4</Color>
+
+    <Color x:Key="Main.White">#FFFFFF</Color>
+
+    <Color x:Key="WhiteF9">#F9F9F9</Color>
+
+    <Color x:Key="GrayScale.Levels.1">#F5F5F5</Color>
+    <Color x:Key="GrayScale.Levels.7">#4F4F4F</Color>
+
+    <SolidColorBrush x:Key="Main.Blue.Brush" Color="{DynamicResource Main.Blue}"/>
+
+    <SolidColorBrush x:Key="GrayScale.Levels.7.Brush" Color="{DynamicResource GrayScale.Levels.7}"/>
+    
+    <SolidColorBrush x:Key="WhiteF9.Brush" Color="{StaticResource WhiteF9}"/>
+
+    <SolidColorBrush x:Key="Background" Color="{DynamicResource GrayScale.Levels.1}"/>
+    <SolidColorBrush x:Key="Foreground" Color="{DynamicResource Main.White}"/>
+
+</ResourceDictionary>
