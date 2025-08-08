@@ -72,14 +72,20 @@
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="true"/>
-                                <Condition Property="IsKeyboardFocused" Value="false"/>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsKeyboardFocused" Value="False"/>
                             </MultiTrigger.Conditions>
                             <Setter Property="BorderBrush" TargetName="border" Value="#AA086CF4"/>
                             <Setter Property="Background" Value="{StaticResource WhiteF9.Brush}"/>
                         </MultiTrigger>
-                        <Trigger Property="IsKeyboardFocused" Value="true">
+                        <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Main.Blue.Brush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="True">
+                            <Setter Property="Opacity" Value="1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

@@ -11,9 +11,56 @@ namespace SampleMaskedTextBox.UI.Control
 {
     internal class MaskedTextBoxControl : TextBox
     {
-        #region Properties
+        #region Constants
 
         private const char MASK_CHARACTER = '_';
+        private const string INVALID_OPERATION_MESSAGE = "Você não pode definir tanto o 'Placeholder' quanto o 'Mask'. Defina apenas um.";
+
+        #endregion
+
+        #region Dependency Properties
+
+        public static readonly DependencyProperty PlaceholderProperty =
+        DependencyProperty.Register("Placeholder",
+        typeof(string),
+        typeof(MaskedTextBoxControl),
+        new PropertyMetadata(string.Empty, OnPlaceHolderChanged));
+
+        public static readonly DependencyProperty MaskProperty =
+        DependencyProperty.Register("Mask",
+        typeof(MaskTypes),
+        typeof(MaskedTextBoxControl),
+        new PropertyMetadata(MaskTypes.None, OnMaskChanged));
+
+        public static readonly DependencyProperty RegexPatternProperty =
+        DependencyProperty.Register("RegexPattern",
+        typeof(string),
+        typeof(MaskedTextBoxControl),
+        new PropertyMetadata(string.Empty));
+
+        public static readonly DependencyProperty LabelProperty =
+        DependencyProperty.Register("Label",
+        typeof(string),
+        typeof(MaskedTextBoxControl),
+        new PropertyMetadata(string.Empty));
+
+        #endregion
+
+        #region Static Fields
+
+        private static readonly Dictionary<MaskTypes, string> Masks = new Dictionary<MaskTypes, string>
+        {
+            { MaskTypes.Cpf, "___.___.___-__" },
+            { MaskTypes.Cnpj, "__.___.___/____-__" },
+            { MaskTypes.Data, "__/__/____" },
+            { MaskTypes.Cep, "_____-___" },
+            { MaskTypes.Celular, "(__) _____-____" },
+            { MaskTypes.Telefone, "(__) ____-____" },
+        };
+
+        #endregion
+
+        #region Enums
 
         public enum MaskTypes : byte
         {
@@ -22,25 +69,13 @@ namespace SampleMaskedTextBox.UI.Control
             Cnpj,
             Data,
             Cep,
-            //Celular, //Em breve...
-            //Telefone //Em breve...
+            Celular,
+            Telefone
         }
 
-        private static readonly Dictionary<MaskTypes, string> Masks = new Dictionary<MaskTypes, string>
-        {
-            { MaskTypes.Cpf, "___.___.___-__" },
-            { MaskTypes.Cnpj, "__.___.___/____-__" },
-            { MaskTypes.Data, "__/__/____" },
-            { MaskTypes.Cep, "_____-___" },
-            //{ MaskTypes.Celular, "(__) _ ____-____" }, //Em breve...
-            //{ MaskTypes.Telefone, "(__) ____-____" }, //Em breve...
-        };
+        #endregion
 
-        public static readonly DependencyProperty PlaceholderProperty =
-        DependencyProperty.Register("Placeholder",
-        typeof(string),
-        typeof(MaskedTextBoxControl),
-        new PropertyMetadata(string.Empty, OnPlaceHolderChanged));
+        #region Properties
 
         public string Placeholder
         {
@@ -48,35 +83,17 @@ namespace SampleMaskedTextBox.UI.Control
             set { SetValue(PlaceholderProperty, value); }
         }
 
-        public static readonly DependencyProperty MaskProperty =
-        DependencyProperty.Register("Mask",
-        typeof(MaskTypes),
-        typeof(MaskedTextBoxControl),
-        new PropertyMetadata(MaskTypes.None, OnMaskChanged));
-
         public MaskTypes Mask
         {
             get { return (MaskTypes)GetValue(MaskProperty); }
             set { SetValue(MaskProperty, value); }
         }
 
-        public static readonly DependencyProperty RegexPatternProperty =
-        DependencyProperty.Register("RegexPattern",
-        typeof(string),
-        typeof(MaskedTextBoxControl),
-        new PropertyMetadata(string.Empty));
-
         public string RegexPattern
         {
             get { return (string)GetValue(RegexPatternProperty); }
             set { SetValue(RegexPatternProperty, value); }
         }
-
-        public static readonly DependencyProperty LabelProperty =
-        DependencyProperty.Register("Label",
-        typeof(string),
-        typeof(MaskedTextBoxControl),
-        new PropertyMetadata(string.Empty));
 
         public string Label
         {
@@ -94,7 +111,7 @@ namespace SampleMaskedTextBox.UI.Control
         {
             if (!string.IsNullOrEmpty(Placeholder) && Mask != MaskTypes.None)
             {
-                throw new InvalidOperationException("Você não pode definir tanto o 'Placeholder' quanto o 'Mask'. Defina apenas um.");
+                throw new InvalidOperationException(INVALID_OPERATION_MESSAGE);
             }
         }
 
@@ -149,15 +166,15 @@ namespace SampleMaskedTextBox.UI.Control
 
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
-            if (!string.IsNullOrEmpty(RegexPattern) && Mask == MaskTypes.None)
+            if 
+            (
+                !string.IsNullOrEmpty(RegexPattern) 
+                && Mask == MaskTypes.None
+                && new Regex(RegexPattern).IsMatch(Text + e.Text)
+            )
             {
-                Regex regex = new Regex(RegexPattern);
-
-                if (!regex.IsMatch(Text + e.Text))
-                {
-                    e.Handled = true;
-                    return;
-                }
+                e.Handled = true;
+                return;
             }
         }
 
@@ -191,15 +208,15 @@ namespace SampleMaskedTextBox.UI.Control
             }
             else
             {
-                if (e.Key == Key.Space && !string.IsNullOrEmpty(RegexPattern))
+                if 
+                (
+                    e.Key == Key.Space 
+                    && !string.IsNullOrEmpty(RegexPattern) 
+                    && new Regex(RegexPattern).IsMatch(Text + " ")
+                )
                 {
-                    Regex regex = new Regex(RegexPattern);
-
-                    if (!regex.IsMatch(Text + " "))
-                    {
-                        e.Handled = true;
-                        return;
-                    }
+                    e.Handled = true;
+                    return;
                 }
             }
 
@@ -239,6 +256,19 @@ namespace SampleMaskedTextBox.UI.Control
                     ExecuteRemoval();
                     return;
                 }
+
+                return;
+            }
+
+            if
+            (
+                !string.IsNullOrEmpty(RegexPattern) 
+                && e.Command == ApplicationCommands.Paste
+                && new Regex(RegexPattern).IsMatch(Text + Clipboard.GetText())
+            )
+            {
+                e.Handled = true;
+                return;
             }
         }
 
@@ -351,7 +381,7 @@ namespace SampleMaskedTextBox.UI.Control
 
                         digitsInserted += totalCharInserted;
 
-                        Text = Regex.Replace(Text, RegexUtil.REGEX_MASKS, string.Empty);
+                        Text = Regex.Replace(Text, RegexUtil.ONLY_NUMBERS_AND_UNDERSCORE, string.Empty);
 
                         for (int c = 0; c < Masks[Mask].Length - 1; c++)
                         {
@@ -386,7 +416,7 @@ namespace SampleMaskedTextBox.UI.Control
                     if (digitsDeleted > 0)
                     {
                         Text = Text.PadRight(Text.Length + digitsDeleted, MASK_CHARACTER);
-                        Text = Regex.Replace(Text, RegexUtil.REGEX_MASKS, string.Empty);
+                        Text = Regex.Replace(Text, RegexUtil.ONLY_NUMBERS_AND_UNDERSCORE, string.Empty);
 
                         for (int c = 0; c < Masks[Mask].Length - 1; c++)
                         {
@@ -425,7 +455,7 @@ namespace SampleMaskedTextBox.UI.Control
             }
 
             Text = Text.PadRight(Text.Length + charDeleted, MASK_CHARACTER);
-            Text = Regex.Replace(Text, RegexUtil.REGEX_MASKS, string.Empty);
+            Text = Regex.Replace(Text, RegexUtil.ONLY_NUMBERS_AND_UNDERSCORE, string.Empty);
 
             for (int c = 0; c < Masks[Mask].Length - 1; c++)
             {
@@ -457,7 +487,7 @@ namespace SampleMaskedTextBox.UI.Control
                     }
 
                     // Se o caractere no índice atual for um delimitador da máscara, o cursor avança uma posição
-                    if (!char.IsDigit(Text[caretIndex]) && Text[caretIndex] != MASK_CHARACTER)
+                    while (!char.IsDigit(Text[caretIndex]) && Text[caretIndex] != MASK_CHARACTER)
                     {
                         caretIndex++;
                     }
@@ -540,7 +570,7 @@ namespace SampleMaskedTextBox.UI.Control
 
 
                     Text = Text.PadRight(Text.Length + digitsDeleted, MASK_CHARACTER);
-                    Text = Regex.Replace(Text, RegexUtil.REGEX_MASKS, string.Empty);
+                    Text = Regex.Replace(Text, RegexUtil.ONLY_NUMBERS_AND_UNDERSCORE, string.Empty);
 
                     for (int c = 0; c < Masks[Mask].Length - 1; c++)
                     {

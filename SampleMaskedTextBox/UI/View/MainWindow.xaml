@@ -8,8 +8,8 @@
         WindowStartupLocation="CenterScreen" 
         ResizeMode="CanMinimize"
         Title="MainWindow" 
-        Height="160" 
-        Width="250">
+        Height="200" 
+        Width="300">
     <Grid>
         
         <Frame Name="MainFrame" NavigationUIVisibility="Hidden"/>

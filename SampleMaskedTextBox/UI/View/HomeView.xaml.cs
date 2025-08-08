@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static SampleMaskedTextBox.UI.Control.MaskedTextBoxControl;
 
 namespace SampleMaskedTextBox.UI.View
 {
@@ -23,6 +24,27 @@ namespace SampleMaskedTextBox.UI.View
         public Home()
         {
             InitializeComponent();
+
+            txtBoxMain.Focus();
+
+            cmbMask.ItemsSource = Enum.GetValues(typeof(MaskTypes));
+            cmbMask.SelectedItem = txtBoxMain.Mask;
+        }
+
+        private void cmbMask_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbMask.SelectedItem is MaskTypes mask)
+            {
+                txtBoxMain.Mask = mask;
+                txtBoxRegex.IsEnabled = mask == MaskTypes.None;
+                txtBoxRegex.Clear();
+            }
+        }
+
+        private void txtBoxRegex_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            txtBoxMain.Clear();
+            txtBoxMain.RegexPattern = txtBoxRegex.Text;
         }
     }
 }

@@ -9,10 +9,12 @@
       Background="{StaticResource Background}"
       Title="Home">
 
-    <Grid>
+    <Grid Margin="8 0 8 0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <TextBlock Text="Masked TextBox" 
@@ -20,10 +22,33 @@
                    Foreground="{StaticResource GrayScale.Levels.7.Brush}"
                    FontWeight="Bold" 
                    HorizontalAlignment="Center" />
-        
-        <Grid Grid.Row="1" Margin="20 20 20 0">
-            <controls:MaskedTextBoxControl Label="{Binding Mask, RelativeSource={RelativeSource Self}}" Mask="None" FontSize="16" />
+
+        <Grid Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel VerticalAlignment="Bottom">
+                <TextBlock Text="Masks" 
+                HorizontalAlignment="Left"
+                Margin="0 0 0 4"
+                FontSize="16" 
+                Foreground="{StaticResource GrayScale.Levels.7.Brush}"
+                FontWeight="SemiBold" />
+                
+                <ComboBox x:Name="cmbMask"
+                FontSize="14"
+                SelectionChanged="cmbMask_SelectionChanged" />
+            </StackPanel>
+            
+            <controls:MaskedTextBoxControl Grid.Column="2" VerticalAlignment="Bottom" x:Name="txtBoxMain" Label="{Binding Mask, RelativeSource={RelativeSource Self}}" FontSize="16" />
+            
         </Grid>
+
+        <controls:MaskedTextBoxControl Grid.Row="3" x:Name="txtBoxRegex" TextChanged="txtBoxRegex_TextChanged" IsEnabled="False" VerticalAlignment="Bottom" Label="Regex pattern" Mask="None" FontSize="16" />
 
     </Grid>
 </Page>
